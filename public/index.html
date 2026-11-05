@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SpendWise: know why you spend</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--ink:#16183a;--paper:#f3f5ff;--card:#fff;--mute:#5d6285;--line:#e1e5f6;--blue:#3a5bff;--pink:#ff4f87;--sun:#ffd23f;--sunbg:#fff4c2;--mint:#0fa97d;--mintbg:#dcf7ec;--onblue:#fff}
+@media(prefers-color-scheme:dark){:root{--ink:#eef0ff;--paper:#0e1024;--card:#171a38;--mute:#9aa0cf;--line:#2a2e5c;--blue:#5a76ff;--sunbg:#3a3410;--mint:#3ddba9;--mintbg:#10382e}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.55 'DM Sans',system-ui,sans-serif;padding-bottom:100px}
+h1,h2,h3{font-family:'Bricolage Grotesque','DM Sans',system-ui,sans-serif;line-height:1.12;margin:0}
+h2{font-size:1.25rem}h3{font-size:1.02rem;font-weight:600}
+.top{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;max-width:1040px;margin:0 auto}
+.logo{color:inherit;text-decoration:none;font:800 1.35rem 'Bricolage Grotesque',sans-serif;display:flex;align-items:center;gap:8px}
+.logo i{width:20px;height:20px;border-radius:50%;background:var(--sun);box-shadow:6px 4px 0 var(--pink)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.chipid{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:.85rem;font-weight:500}
+main{max-width:1040px;margin:0 auto;padding:0 20px}
+.hidden{display:none!important}
+a.btn{text-decoration:none;display:inline-block}
+.survey{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;background:var(--sunbg);border-radius:22px 22px 22px 6px;padding:18px 22px;margin:8px 0 4px}
+.keep{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:28px}
+.survey h2{margin-bottom:4px}.survey p{margin:0;max-width:58ch}
+button{font:inherit;cursor:pointer}
+.btn{border:0;border-radius:14px;padding:13px 22px;font-weight:700;background:var(--blue);color:#fff}
+.btn.sun{background:var(--sun);color:#16183a}
+.btn.line{background:transparent;color:var(--blue);border:2px solid var(--blue)}
+.link{background:none;border:0;color:var(--blue);font-weight:500;text-decoration:underline;padding:4px}
+:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+.err{color:var(--pink);min-height:1.5em;margin:6px 0 0;font-weight:500}
+input,select{font:inherit;color:var(--ink);background:var(--card);border:2px solid var(--line);border-radius:12px;padding:11px 14px}
+
+/* landing */
+.land{display:grid;gap:32px;grid-template-columns:1.1fr .9fr;align-items:center;padding:36px 0 20px}
+.land h1{font-size:clamp(2.2rem,6vw,3.9rem);font-weight:800;letter-spacing:-.02em}
+.land p.lead{font-size:1.1rem;color:var(--mute);max-width:46ch;margin:16px 0 24px}
+.enter{background:var(--card);border:2px solid var(--ink);border-radius:22px 22px 22px 4px;padding:22px;box-shadow:8px 8px 0 var(--sun)}
+.enter h2{margin-bottom:12px}.enter .row{margin-bottom:10px}.enter input{flex:1;min-width:150px}#idIn{text-transform:uppercase}
+.fine{color:var(--mute);font-size:.85rem}
+.demo{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.demo span{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:6px 14px;font-size:.9rem}
+
+/* hero */
+.hero{background:var(--blue);color:var(--onblue);border-radius:28px 28px 28px 6px;padding:28px;display:grid;grid-template-columns:1fr 180px;gap:20px;align-items:center;margin-top:8px}
+.hero h2{font-size:clamp(1.6rem,4.4vw,2.5rem);font-weight:800;letter-spacing:-.015em}
+.hero p{margin:12px 0 0;opacity:.92;max-width:48ch}
+.hero .hi{font-size:.9rem;opacity:.85;margin:0 0 8px}
+.ring{width:100%;max-width:180px;justify-self:end}
+.trk{fill:none;stroke:rgba(255,255,255,.22);stroke-width:14}
+.arc{fill:none;stroke:var(--sun);stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset 1.3s cubic-bezier(.2,.8,.2,1)}
+.rn{font:800 30px 'Bricolage Grotesque',sans-serif;fill:#fff}.rl{font:500 11px 'DM Sans',sans-serif;fill:#fff;opacity:.85}
+.stats{display:flex;flex-wrap:wrap;margin:18px 0 8px}
+.stats div{flex:1 1 150px;padding:6px 18px;border-left:3px solid var(--sun)}
+.stats b{display:block;font:800 1.7rem 'Bricolage Grotesque',sans-serif}.stats small{color:var(--mute)}
+
+/* sections */
+.sec{margin-top:28px}.sec>h2{margin-bottom:14px}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+.ins{display:grid;grid-template-columns:48px 1fr;gap:14px}
+.ic{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-size:1.5rem;background:var(--sunbg)}
+.ins p{margin:4px 0 10px;color:var(--mute)}
+.tip{background:var(--sunbg);border-radius:10px 10px 10px 2px;padding:9px 12px;font-size:.93rem}
+.save{background:var(--mintbg);border-radius:22px 6px 22px 22px;padding:20px;display:flex;flex-direction:column;justify-content:center;border:0}
+.save b{font:800 2.4rem 'Bricolage Grotesque',sans-serif;color:var(--mint)}.save p{margin:6px 0 0}
+.fc{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
+.fc b{font:800 2rem 'Bricolage Grotesque',sans-serif;display:block}
+.pill{display:inline-block;background:var(--sunbg);border-radius:99px;padding:2px 12px;font-size:.82rem;font-weight:700}
+.split{display:flex;height:16px;border-radius:99px;overflow:hidden;background:var(--line);margin:8px 0 6px}
+.lg{display:flex;justify-content:space-between;gap:8px;font-size:.88rem;color:var(--mute);margin-bottom:18px;flex-wrap:wrap}
+.lg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.cv{position:relative;height:250px}
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:grid;grid-template-columns:14px 1fr auto auto;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.tl li:last-child{border:0}.dot{width:12px;height:12px;border-radius:50%}
+.tl small{color:var(--mute);display:block}.tl .del{background:none;border:0;color:var(--mute);font-size:1.3rem;line-height:1;padding:4px 8px;border-radius:8px}
+.empty{text-align:center;padding:44px 20px;border:2px dashed var(--line);border-radius:22px;margin-top:20px}
+.empty h2{font-size:1.6rem;margin-bottom:8px}.empty p{color:var(--mute);margin:0 0 18px}
+footer{text-align:center;color:var(--mute);font-size:.85rem;margin-top:34px}
+
+/* log sheet */
+.fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));border:0;background:var(--sun);color:#16183a;font-weight:800;padding:16px 24px;border-radius:99px;box-shadow:0 6px 0 var(--ink);z-index:5}
+.fab:active{transform:translateY(3px);box-shadow:0 3px 0 var(--ink)}
+dialog{border:0;border-radius:26px;padding:0;width:min(560px,94vw);background:var(--card);color:var(--ink);max-height:92vh}
+dialog::backdrop{background:rgba(14,16,36,.6)}
+.sheet{padding:22px}
+.sheet h2{margin-bottom:14px}
+.amt{display:flex;align-items:center;gap:8px;border-bottom:3px solid var(--ink);margin-bottom:16px}
+.amt span{font:800 2rem 'Bricolage Grotesque',sans-serif}
+.amt input{border:0;font:800 2.3rem 'Bricolage Grotesque',sans-serif;width:100%;padding:6px 0;background:transparent}
+.when{display:grid;grid-template-columns:1.4fr 1fr .7fr;gap:8px}.when input,.when select{width:100%;text-align:center}
+.sr{position:absolute;left:-9999px}
+.lab{font-size:.85rem;color:var(--mute);margin:14px 0 6px;font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:7px 14px;font-weight:500}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip.imp[aria-pressed=true]{background:var(--pink);border-color:var(--pink);color:#fff}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.seg .chip{border-radius:12px;text-align:center;padding:11px}
+.sheet .row{margin-top:20px;justify-content:space-between}
+#toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:var(--ink);color:var(--paper);padding:11px 20px;border-radius:99px;opacity:0;pointer-events:none;transition:.3s;z-index:9;font-weight:500}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@media(max-width:760px){
+ .land{grid-template-columns:1fr}.hero{grid-template-columns:1fr}.ring{justify-self:start;max-width:140px}
+ dialog{margin:auto 0 0;width:100%;max-width:100%;border-radius:26px 26px 0 0}
+}
+@media(prefers-reduced-motion:reduce){.arc,#toast{transition:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="logo" href="/" id="logo" aria-label="SpendWise home"><i></i>SpendWise</a>
+  <div id="who" class="row hidden"><span class="chipid" id="idChip"></span><a class="link" id="surveyTop" target="_blank" rel="noopener">Baseline survey</a><button class="link" id="out">Switch ID</button></div>
+</header>
+
+<main>
+  <section id="landing" class="land">
+    <div>
+      <h1>You know what you spent. Now see why.</h1>
+      <p class="lead">Log a purchase in 20 seconds. SpendWise spots your patterns, shows where impulse buying creeps in, and forecasts the weeks ahead from your own history.</p>
+      <div class="demo"><span>🔒 No bank details or passwords</span><span>⚡ 20-second logging</span><span>🔮 Personal forecast</span></div>
+    </div>
+    <div class="enter">
+      <h2>Open your dashboard</h2>
+      <button class="btn line hidden" id="backBtn" style="width:100%;margin-bottom:12px"></button>
+      <div class="row"><input id="idIn" placeholder="SW-A1B2C3" aria-label="Your student ID" autocomplete="off"><button class="btn" id="loginBtn">Open</button></div>
+      <p class="err" id="authErr"></p>
+      <p class="fine" style="margin:0 0 10px">First time here? Enter your name to get an ID.</p>
+      <div class="row"><input id="nameIn" placeholder="Your Name" maxlength="40" aria-label="Your name" autocomplete="name"><button class="btn sun" id="newBtn">Get my ID</button></div>
+      <p class="fine">Your ID is your key. Save it somewhere safe. Your name and purchases are used only for this academic project. Participation is voluntary.</p>
+    </div>
+  </section>
+
+  <div id="app" class="hidden">
+    <section id="survey" class="survey hidden">
+      <div><h2>Step 2: Take the baseline survey</h2><p>It takes about 5 minutes. Please finish it before you start logging, so your starting point is measured fairly. Your ID is already filled in for you.</p></div>
+      <div class="row"><a class="btn sun" id="surveyBtn" target="_blank" rel="noopener">Open the survey</a><button class="link" id="surveyDone">I have completed it</button></div>
+    </section>
+    <section id="empty" class="empty hidden">
+      <h2>Your story starts with one purchase</h2>
+      <p>Log what you bought today. After 7 days of entries, your forecast unlocks.</p>
+      <button class="btn" data-open>Log my first purchase</button>
+    </section>
+
+    <div id="dash" class="hidden">
+      <section class="hero" id="hero"></section>
+      <div class="stats" id="stats"></div>
+
+      <section class="sec"><h2>What your data says</h2><div class="grid" id="insights"></div></section>
+
+      <section class="sec"><h2>Where your money is heading</h2>
+        <div class="card"><div class="fc" id="fc"></div><div class="cv"><canvas id="cLine"></canvas></div><p class="fine" id="fcNote"></p></div>
+      </section>
+
+      <section class="sec"><h2>How you spend</h2>
+        <div class="grid">
+          <div class="card"><h3>By category</h3><div class="cv"><canvas id="cCat"></canvas></div></div>
+          <div class="card"><h3>By time of day</h3><div class="cv"><canvas id="cTime"></canvas></div></div>
+          <div class="card" id="mix"></div>
+        </div>
+      </section>
+
+      <section class="sec"><h2>Recent purchases</h2><div class="card"><ul class="tl" id="recent"></ul></div></section>
+      <footer id="disc"></footer>
+    </div>
+    <section class="card keep" id="surveys">
+      <div><h3>Baseline survey</h3><p class="fine" style="margin:2px 0 0">Not filled in yet, or want to check it? Open it any time. Your ID is filled in for you.</p></div>
+      <a class="btn line" id="surveyKeep" target="_blank" rel="noopener">Open baseline survey</a>
+    </section>
+  </div>
+</main>
+
+<button class="fab hidden" id="fab" data-open>＋ Log purchase</button>
+
+<dialog id="sheet" aria-label="Log a purchase">
+  <form class="sheet" id="txForm">
+    <h2>Log a purchase</h2>
+    <div class="amt"><span>₹</span><input id="amtIn" type="number" inputmode="decimal" min="1" step="0.01" placeholder="0" required aria-label="Amount in rupees"></div>
+    <div class="lab">What was it for?</div><div class="chips" id="catChips"></div>
+    <div class="lab">Was it a need or a want?</div><div class="seg" id="nwSeg"></div>
+    <div class="lab">Did you plan it?</div><div class="seg" id="piSeg"></div>
+    <div id="trgBox" class="hidden"><div class="lab">What pushed you to buy it?</div><div class="chips" id="trgChips"></div></div>
+    <div class="lab">When did you buy it?</div>
+    <div class="when">
+      <label class="sr" for="dateIn">Date</label><input id="dateIn" inputmode="numeric" placeholder="DD/MM/YYYY" maxlength="10" autocomplete="off" required>
+      <label class="sr" for="timeIn">Time</label><input id="timeIn" inputmode="numeric" placeholder="hh:mm" maxlength="5" autocomplete="off" required>
+      <select id="apIn" aria-label="AM or PM"><option>AM</option><option>PM</option></select>
+    </div>
+    <div class="chips" style="margin-top:8px"><button type="button" class="chip" id="nowBtn">Now</button><button type="button" class="chip" id="yestBtn">Yesterday, same time</button></div>
+    <p class="fine" style="margin:6px 0 0">Format: date as DD/MM/YYYY, time as hh:mm, then AM or PM.</p>
+    <p class="err" id="txErr"></p>
+    <div class="row"><button type="button" class="link" id="cancel">Cancel</button><button class="btn" type="submit">Save purchase</button></div>
+  </form>
+</dialog>
+<div id="toast" role="status"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const EMO={'Food & drinks':'🍔','Transport':'🚌','Education':'📚','Entertainment':'🎬','Shopping':'🛍️','Subscriptions':'🔁','Health':'💊','Other':'✨'};
+const TRIG=['Hunger','Boredom','Stress','Friends/peer','Offer/discount','Social media/ad','Habit'];
+const ICONS=[['Keep logging','✍️'],['Unplanned','⚡'],['Most money','🥧'],['Wants outweigh','⚖️'],['cluster','🌙'],['Discounts','🏷️'],['Emotion','💭'],['Outside','📱'],['Weekends','📅'],['Small','☕'],['rose','📈'],['Balanced','🌿']];
+const icon=t=>(ICONS.find(([k])=>t.includes(k))||[0,'💡'])[1];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const inr=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const nowLocal=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16);
+let sid=localStorage.getItem('sw_id'),sname='',authed=false,charts={},F={category:'Food & drinks',need_want:'Need',planned_impulse:'Planned',trigger_type:'None'};
+
+async function api(p,o={}){const r=await fetch('/api'+p,{headers:{'Content-Type':'application/json'},...o});const j=await r.json();if(!r.ok)throw new Error(j.error||'Something went wrong');return j}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2400)}
+
+/* date and time entry: DD/MM/YYYY and hh:mm AM/PM */
+const p2=n=>String(n).padStart(2,'0');
+function setWhen(d){
+  $('#dateIn').value=`${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()}`;
+  const h=d.getHours();$('#apIn').value=h>=12?'PM':'AM';
+  $('#timeIn').value=`${p2(h%12||12)}:${p2(d.getMinutes())}`;
+}
+function readWhen(){
+  const m=$('#dateIn').value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/),t=$('#timeIn').value.match(/^(\d{2}):(\d{2})$/);
+  if(!m)throw new Error('Enter the date as DD/MM/YYYY, for example 05/11/2026.');
+  if(!t)throw new Error('Enter the time as hh:mm, for example 07:45.');
+  const day=+m[1],mon=+m[2],yr=+m[3],hr=+t[1],mi=+t[2];
+  if(hr<1||hr>12||mi>59)throw new Error('Time must be from 01:00 to 12:59. Then choose AM or PM.');
+  const h24=hr%12+($('#apIn').value==='PM'?12:0),d=new Date(yr,mon-1,day,h24,mi);
+  if(d.getFullYear()!==yr||d.getMonth()!==mon-1||d.getDate()!==day)throw new Error('That date does not exist. Please check it.');
+  if(d.getTime()>Date.now()+60000)throw new Error('That date and time is in the future.');
+  return `${yr}-${p2(mon)}-${p2(day)}T${p2(h24)}:${p2(mi)}`;
+}
+$('#dateIn').oninput=e=>{const v=e.target.value.replace(/\D/g,'').slice(0,8);e.target.value=v.length>4?v.slice(0,2)+'/'+v.slice(2,4)+'/'+v.slice(4):v.length>2?v.slice(0,2)+'/'+v.slice(2):v};
+$('#timeIn').oninput=e=>{const v=e.target.value.replace(/\D/g,'').slice(0,4);e.target.value=v.length>2?v.slice(0,2)+':'+v.slice(2):v};
+$('#nowBtn').onclick=()=>setWhen(new Date());
+$('#yestBtn').onclick=()=>{const d=new Date();d.setDate(d.getDate()-1);setWhen(d)};
+
+/* log sheet controls */
+function group(el,list,key,cls=''){
+  el.innerHTML=list.map(([v,l])=>`<button type="button" class="chip ${cls}" data-v="${esc(v)}" aria-pressed="${F[key]===v}">${l}</button>`).join('');
+  el.onclick=e=>{const b=e.target.closest('.chip');if(!b)return;F[key]=b.dataset.v;el.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===b));if(key==='planned_impulse')syncTrigger()}
+}
+function syncTrigger(){const imp=F.planned_impulse==='Impulse';$('#trgBox').classList.toggle('hidden',!imp);if(!imp){F.trigger_type='None';$('#trgChips').querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false'))}}
+function buildSheet(){
+  group($('#catChips'),Object.keys(EMO).map(c=>[c,EMO[c]+' '+c]),'category');
+  group($('#nwSeg'),[['Need','🧱 Need'],['Want','🎁 Want']],'need_want');
+  group($('#piSeg'),[['Planned','📝 Planned'],['Impulse','⚡ Impulse']],'planned_impulse','imp');
+  group($('#trgChips'),TRIG.map(t=>[t,t]),'trigger_type');
+  $('#trgChips').querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false'));
+  syncTrigger();
+}
+function openSheet(){F={category:'Food & drinks',need_want:'Need',planned_impulse:'Planned',trigger_type:'None'};buildSheet();$('#txForm').reset();setWhen(new Date());$('#txErr').textContent='';$('#sheet').showModal();$('#amtIn').focus()}
+document.addEventListener('click',e=>{if(e.target.closest('[data-open]'))openSheet()});
+$('#cancel').onclick=()=>$('#sheet').close();
+$('#sheet').addEventListener('click',e=>{if(e.target.id==='sheet')e.target.close()});
+
+$('#txForm').onsubmit=async e=>{
+  e.preventDefault();
+  try{await api(`/students/${sid}/transactions`,{method:'POST',body:JSON.stringify({...F,amount:$('#amtIn').value,spent_at:readWhen()})});
+    $('#sheet').close();toast('Saved. Your insights are updated.');await load()}
+  catch(err){$('#txErr').textContent=err.message}
+};
+
+/* session */
+async function enter(id){
+  try{
+    const st=await api('/students/'+encodeURIComponent(id.trim()));sname=st.name||'';
+    sid=id.trim().toUpperCase();localStorage.setItem('sw_id',sid);authed=true;
+    $('#landing').classList.add('hidden');$('#app').classList.remove('hidden');$('#who').classList.remove('hidden');$('#fab').classList.remove('hidden');
+    $('#idChip').textContent=(sname?sname+', ':' ')+sid;showSurvey();await load();
+  }catch(err){$('#authErr').textContent=err.message;localStorage.removeItem('sw_id')}
+}
+$('#loginBtn').onclick=()=>enter($('#idIn').value);
+$('#idIn').onkeydown=e=>{if(e.key==='Enter')enter(e.target.value)};
+const makeId=async()=>{const name=$('#nameIn').value.trim();if(!name){$('#authErr').textContent='Please enter your name first.';$('#nameIn').focus();return}
+  try{const {id}=await api('/students',{method:'POST',body:JSON.stringify({name})});toast('Welcome, '+name+'! Your ID is '+id+'. Save it.');enter(id)}catch(e){$('#authErr').textContent=e.message}};
+$('#newBtn').onclick=makeId;
+$('#nameIn').onkeydown=e=>{if(e.key==='Enter')makeId()};
+$('#out').onclick=()=>{localStorage.removeItem('sw_id');location.reload()};
+
+async function load(){
+  const a=await api(`/students/${sid}/analysis`);
+  $('#empty').classList.toggle('hidden',!a.empty);$('#dash').classList.toggle('hidden',!!a.empty);
+  if(a.empty)return;
+  render(a);
+  const tx=await api(`/students/${sid}/transactions`);
+  $('#recent').innerHTML=tx.slice(0,10).map(t=>`<li><span class="dot" style="background:${t.planned_impulse==='Impulse'?css('--pink'):css('--blue')}"></span>
+    <div>${EMO[t.category]||''} ${esc(t.category)}<small>${esc(t.spent_at.replace('T',' '))}, ${esc(t.need_want)}, ${esc(t.planned_impulse)}</small></div>
+    <b>${inr(t.amount)}</b><button class="del" data-del="${t.id}" aria-label="Delete this purchase">×</button></li>`).join('');
+}
+$('#recent').onclick=async e=>{const id=e.target.dataset.del;if(id){await api(`/students/${sid}/transactions/${id}`,{method:'DELETE'});toast('Purchase deleted');load()}};
+
+/* render */
+function chart(id,cfg){charts[id]?.destroy();charts[id]=new Chart($('#'+id),cfg)}
+const split=(a,b,ca,cb,la,lb)=>{const t=a+b||1;return `<div class="split"><div style="width:${a/t*100}%;background:${ca}"></div><div style="width:${b/t*100}%;background:${cb}"></div></div><div class="lg"><span><i style="background:${ca}"></i>${la} ${inr(a)}</span><span><i style="background:${cb}"></i>${lb} ${inr(b)}</span></div>`};
+
+function render(a){
+  Chart.defaults.color=css('--mute');Chart.defaults.font.family="'DM Sans',system-ui,sans-serif";
+  const s=a.summary,f=a.forecast,b=a.breakdown,C=2*Math.PI*54,p=s.impulsePct;
+  const head=p>0?`About ${Math.max(1,Math.round(p/10))} in every 10 rupees you spent was unplanned.`:'Every rupee you spent was planned. Keep it up.';
+  const sub=s.avoidable?`${inr(s.avoidable)} went on impulse wants. Start your reflection there.`:'Keep logging to uncover more patterns.';
+  $('#hero').innerHTML=`<div><p class="hi">${sname?'Hi '+esc(sname)+'. ':''}Your story so far: ${s.days} day${s.days>1?'s':''}, ${s.count} purchase${s.count>1?'s':''}</p><h2>${head}</h2><p>${sub}</p></div>
+   <svg class="ring" viewBox="0 0 140 140" role="img" aria-label="${p}% of spending was impulse"><circle class="trk" cx="70" cy="70" r="54"/>
+   <circle class="arc" id="arc" cx="70" cy="70" r="54" stroke-dasharray="${C}" stroke-dashoffset="${C}" transform="rotate(-90 70 70)"/>
+   <text x="70" y="70" text-anchor="middle" class="rn">${p}%</text><text x="70" y="90" text-anchor="middle" class="rl">impulse</text></svg>`;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{$('#arc').style.strokeDashoffset=C*(1-p/100)}));
+  $('#stats').innerHTML=[[inr(s.total),'spent so far'],[inr(s.perDay),'on an average day'],[f?inr(f.next30):'Not yet',f?'expected in the next 30 days':'forecast unlocks after 7 days']].map(([v,l])=>`<div><b>${v}</b><small>${l}</small></div>`).join('');
+
+  $('#insights').innerHTML=a.insights.map(i=>`<article class="card ins"><div class="ic" aria-hidden="true">${icon(i.title)}</div><div><h3>${esc(i.title)}</h3><p>${esc(i.text)}</p><div class="tip"><b>Try this:</b> ${esc(i.tip)}</div></div></article>`).join('')+
+   (s.avoidable?`<article class="card save"><b>${inr(s.avoidableMonthlyHalf)}</b><p>could stay with you each month if half of your impulse wants were planned or skipped. A reflection estimate, not a verdict.</p></article>`:'');
+
+  const hist=a.daily.map(d=>d.date.slice(5)),fut=f?f.days.map(d=>d.date.slice(5)):[];
+  $('#fc').innerHTML=f?`<div><b>${inr(f.next7)}</b><small>next 7 days (±${inr(f.band7)})</small></div><div><b>${inr(f.next30)}</b><small>next 30 days (±${inr(f.band30)})</small></div><span class="pill">Confidence: ${esc(f.confidence)}</span>`:'<div><b>Almost there</b><small>Log 7 different days to unlock your forecast</small></div>';
+  chart('cLine',{type:'line',data:{labels:[...hist,...fut],datasets:[
+    {label:'Actual',data:a.daily.map(d=>d.amount),borderColor:css('--blue'),backgroundColor:css('--blue')+'22',fill:true,tension:.3,pointRadius:2},
+    ...(f?[{label:'Forecast',data:[...hist.map(()=>null),...f.days.map(d=>d.amount)],borderColor:css('--pink'),borderDash:[6,5],tension:.3,pointRadius:2}]:[])]},
+    options:{maintainAspectRatio:false,scales:{y:{beginAtZero:true,grid:{color:css('--line')}},x:{grid:{display:false},ticks:{maxTicksLimit:8}}},plugins:{legend:{position:'bottom'}}}});
+  $('#fcNote').textContent=f?'Based only on your own past entries. It is an estimate, so use it as a guide.':'';
+
+  const PAL=[css('--blue'),css('--pink'),'#ffb703','#0fa97d','#8a5cf6','#22b8cf','#ff7a45','#8a90b8'];
+  chart('cCat',{type:'doughnut',data:{labels:Object.keys(b.byCategory).map(k=>(EMO[k]||'')+' '+k),datasets:[{data:Object.values(b.byCategory),backgroundColor:PAL,borderColor:css('--card'),borderWidth:3}]},options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'}}}});
+  const order=['Morning','Afternoon','Evening','Night'];
+  chart('cTime',{type:'bar',data:{labels:order,datasets:[{data:order.map(k=>b.byTime[k]||0),backgroundColor:[PAL[2],PAL[3],PAL[0],PAL[4]],borderRadius:10}]},options:{maintainAspectRatio:false,scales:{y:{beginAtZero:true,grid:{color:css('--line')}},x:{grid:{display:false}}},plugins:{legend:{display:false}}}});
+  $('#mix').innerHTML=`<h3>Needs and wants</h3>${split(b.byNeedWant.Need||0,b.byNeedWant.Want||0,css('--blue'),'#ffb703','Need','Want')}
+   <h3>Planned and impulse</h3>${split(b.byPlan.Planned||0,b.byPlan.Impulse||0,css('--mint'),css('--pink'),'Planned','Impulse')}`;
+  $('#disc').textContent=a.disclaimer;
+}
+
+/* baseline survey link (ID pre-filled) */
+const SURVEY_BASE='https://docs.google.com/forms/d/e/1FAIpQLSf2uRfuY2xCh4HJx94U4XynDV9qVtaq7HzaCLQuaRRNe8LdLA/viewform';
+const SURVEY_ID_ENTRY='entry.930065716';
+const SURVEY_NAME_ENTRY='entry.1860369944';
+function showSurvey(){
+  $('#survey').classList.toggle('hidden',localStorage.getItem('sw_survey_'+sid)==='1');
+  let url=SURVEY_BASE+'?usp=pp_url&'+SURVEY_ID_ENTRY+'='+encodeURIComponent(sid);
+  if(SURVEY_NAME_ENTRY&&sname)url+='&'+SURVEY_NAME_ENTRY+'='+encodeURIComponent(sname);
+  ['#surveyBtn','#surveyTop','#surveyKeep'].forEach(x=>$(x).href=url);
+}
+$('#surveyDone').onclick=()=>{localStorage.setItem('sw_survey_'+sid,'1');$('#survey').classList.add('hidden');toast('Thanks! You are all set to start logging.')};
+
+/* logo -> home (front page) */
+function showApp(){$('#landing').classList.add('hidden');['#app','#who','#fab'].forEach(x=>$(x).classList.remove('hidden'))}
+$('#logo').onclick=e=>{
+  e.preventDefault();
+  ['#app','#who','#fab'].forEach(x=>$(x).classList.add('hidden'));
+  $('#landing').classList.remove('hidden');
+  const b=$('#backBtn');b.classList.toggle('hidden',!authed);b.textContent=sname?'Back to my dashboard, '+sname:'Back to my dashboard';
+  window.scrollTo(0,0);
+};
+$('#backBtn').onclick=showApp;
+
+if(sid)enter(sid);
+</script>
+</body>
+</html>
