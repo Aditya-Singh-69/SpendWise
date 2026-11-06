@@ -227,10 +227,6 @@ Run it only once, because running it again duplicates purchases.
 
 SpendWise 2.0 is an individual experiential MBA project with a 15-week pilot. It supports **SDG 4 (Quality Education)** by treating financial literacy as applied learning, and **SDG 12 (Responsible Consumption and Production)** by making discretionary and avoidable spending more visible. Claims are limited to pilot level.
 
-## License
-
-Add a license of your choice, for example [MIT](https://choosealicense.com/licenses/mit/), before making the repository public. Without one, others have no permission to reuse the code.
-
 ## Author
 
-Your Name · Your Institution · Your Email (optional)
+Aditya Singh
